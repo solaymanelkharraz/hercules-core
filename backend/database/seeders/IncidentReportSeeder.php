@@ -23,7 +23,7 @@ class IncidentReportSeeder extends Seeder
             'user_id' => $guide->id,
             'zone_id' => $zone->id,
             'equipment_id' => $equipment->id,
-            'severity_level' => 'minor',
+            'severity_level' => 'low',
             'description' => 'Minor oil leak detected on the buggy engine.',
             'status' => 'investigating',
         ]);
@@ -31,9 +31,9 @@ class IncidentReportSeeder extends Seeder
         IncidentReport::create([
             'user_id' => $guide->id,
             'zone_id' => $zone->id,
-            'severity_level' => 'minor',
+            'severity_level' => 'low',
             'description' => 'Broken fence near the entrance of the buggy circuit.',
-            'status' => 'open',
+            'status' => 'reported',
         ]);
     }
 }

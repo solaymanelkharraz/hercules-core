@@ -16,9 +16,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('zone_id')->constrained('zones')->cascadeOnDelete();
             $table->foreignId('equipment_id')->nullable()->constrained('equipment')->nullOnDelete();
-            $table->enum('severity_level', ['minor', 'major', 'critical']);
+            $table->enum('severity_level', ['low', 'medium', 'high', 'critical']);
             $table->text('description');
-            $table->enum('status', ['open', 'investigating', 'resolved'])->default('open');
+            $table->enum('status', ['reported', 'investigating', 'resolved'])->default('reported');
             $table->timestamps();
             $table->softDeletes();
         });
