@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../api/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { Mountain, Lock, Mail, Loader2 } from 'lucide-react';
 
 export default function Login() {

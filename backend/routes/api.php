@@ -6,6 +6,7 @@ use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\EquipmentAssignmentController;
 use App\Http\Controllers\IncidentReportController;
+use App\Http\Controllers\AlertController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/alerts/latest', [AlertController::class, 'latest']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -55,5 +57,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/incident-reports', [IncidentReportController::class, 'store']);
         Route::put('/incident-reports/{incident_report}', [IncidentReportController::class, 'update']);
         Route::delete('/incident-reports/{incident_report}', [IncidentReportController::class, 'destroy']);
+    });
+    
+    // War Room Chat (available to anyone who can view incidents)
+    Route::middleware('role:admin,manager,guide')->group(function () {
+        Route::get('/incident-reports/{id}/messages', [\App\Http\Controllers\MessageController::class, 'index']);
+        Route::post('/incident-reports/{id}/messages', [\App\Http\Controllers\MessageController::class, 'store']);
     });
 });

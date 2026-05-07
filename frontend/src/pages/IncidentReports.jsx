@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { DataTable, Modal, Badge } from '../components/DataTable';
-import { Plus, CheckCircle, ShieldAlert } from 'lucide-react';
+import { Plus, CheckCircle, ShieldAlert, Search, Filter } from 'lucide-react';
 import { cn } from '../api/cn';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 export default function IncidentReports() {
   const [reports, setReports] = useState([]);
@@ -14,7 +14,6 @@ export default function IncidentReports() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const INITIAL_STATE = {
-    user_id: '',
     zone_id: '',
     equipment_id: '',
     severity_level: 'low',
@@ -119,17 +118,49 @@ export default function IncidentReports() {
     },
   ];
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterSeverity, setFilterSeverity] = useState('all');
+
+  const filteredReports = reports.filter(item => {
+    const matchesSearch = item.description.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (item.zone?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSeverity = filterSeverity === 'all' || item.severity_level === filterSeverity;
+    return matchesSearch && matchesSeverity;
+  });
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-white p-6 lg:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm gap-4">
-        <div>
-          <h2 className="text-xl font-black text-forest uppercase tracking-tight">Safety & Operations</h2>
-          <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">Live incident tracking system</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative max-w-sm w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search incidents..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-adventure/10 focus:border-adventure transition-all font-bold text-sm"
+            />
+          </div>
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <select
+              value={filterSeverity}
+              onChange={(e) => setFilterSeverity(e.target.value)}
+              className="pl-10 pr-8 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-adventure/10 focus:border-adventure transition-all font-bold text-sm appearance-none cursor-pointer"
+            >
+              <option value="all">All Severities</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
         </div>
         <button 
           onClick={() => {
             setSelectedReport(null);
-            setFormData({ user_id: '', zone_id: '', equipment_id: '', severity_level: 'low', description: '', status: 'reported' });
+            setFormData({ zone_id: '', equipment_id: '', severity_level: 'low', description: '', status: 'reported' });
             setIsModalOpen(true);
           }}
           className="flex items-center gap-2 px-8 py-3 bg-adventure text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-adventure-hover shadow-lg shadow-adventure/20 transition-all active:scale-95 w-full lg:w-auto justify-center"
@@ -141,7 +172,7 @@ export default function IncidentReports() {
 
       <DataTable 
         columns={columns} 
-        data={reports} 
+        data={filteredReports} 
         isLoading={isLoading}
         actions={(row) => row.status !== 'resolved' && (
           <button 
@@ -155,7 +186,6 @@ export default function IncidentReports() {
         onEdit={(row) => {
           setSelectedReport(row);
           setFormData({
-            user_id: row.user_id,
             zone_id: row.zone_id,
             equipment_id: row.equipment_id || '',
             severity_level: row.severity_level,
@@ -183,18 +213,6 @@ export default function IncidentReports() {
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-black text-forest uppercase tracking-widest ml-1">Staff Member</label>
-              <select 
-                required
-                value={formData.user_id}
-                onChange={e => setFormData({...formData, user_id: e.target.value})}
-                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-adventure/10 focus:border-adventure outline-none transition-all font-bold text-forest"
-              >
-                <option value="">-- Select Staff --</option>
-                {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-              </select>
-            </div>
             <div className="space-y-2">
               <label className="text-xs font-black text-forest uppercase tracking-widest ml-1">Location / Zone</label>
               <select 

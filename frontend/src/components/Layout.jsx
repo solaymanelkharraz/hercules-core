@@ -14,9 +14,11 @@ import {
 import { cn } from '../api/cn';
 import { useAuth } from '../api/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import GlobalAlert from './GlobalAlert';
 
 const sidebarItems = [
   { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['admin', 'manager', 'guide', 'cashier'] },
+  { name: 'Directory', path: '/directory', icon: Users, roles: ['admin', 'manager', 'guide', 'cashier'] },
   { name: 'Users', path: '/users', icon: Users, roles: ['admin', 'manager'] },
   { name: 'Zones', path: '/zones', icon: MapPin, roles: ['admin', 'manager', 'guide', 'cashier'] },
   { name: 'Equipment', path: '/equipment', icon: Wrench, roles: ['admin', 'manager', 'cashier'] },
@@ -119,17 +121,18 @@ export default function Layout() {
       </aside>
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden transition-all duration-300">
-        <header className="h-20 lg:h-24 bg-white border-b border-slate-100 flex items-center justify-between px-4 lg:px-10 shrink-0 shadow-sm z-30">
+        <GlobalAlert />
+        <header className="h-20 lg:h-24 bg-forest border-b border-forest/10 flex items-center justify-between px-4 lg:px-10 shrink-0 shadow-sm z-30">
           <div className="flex items-center gap-4 lg:gap-6">
             <button 
               onClick={() => setIsSidebarOpen(true)}
-              className={cn("p-2 lg:p-3 bg-slate-50 hover:bg-slate-100 rounded-xl lg:rounded-2xl transition-all active:scale-95", isSidebarOpen && "lg:hidden")}
+              className={cn("p-2 lg:p-3 bg-white/5 hover:bg-white/10 rounded-xl lg:rounded-2xl transition-all active:scale-95 text-white", isSidebarOpen && "lg:hidden")}
             >
-              <Menu size={22} lg:size={24} className="text-forest" strokeWidth={2.5} />
+              <Menu size={22} lg:size={24} strokeWidth={2.5} />
             </button>
             <div className="flex flex-col">
-              <span className="text-[8px] lg:text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-0.5">Management</span>
-              <h1 className="text-lg lg:text-2xl font-black text-forest uppercase tracking-tighter leading-none">
+              <span className="text-[8px] lg:text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-0.5">Management</span>
+              <h1 className="text-lg lg:text-2xl font-black text-white uppercase tracking-tighter leading-none">
                 {sidebarItems.find(i => i.path === location.pathname)?.name || 'Command Center'}
               </h1>
             </div>
@@ -143,7 +146,7 @@ export default function Layout() {
             
             <button 
               onClick={handleLogout}
-              className="p-3 lg:p-4 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl lg:rounded-2xl transition-all active:scale-95 group"
+              className="p-3 lg:p-4 text-white/50 hover:text-red-400 hover:bg-white/5 rounded-xl lg:rounded-2xl transition-all active:scale-95 group"
             >
               <LogOut size={20} lg:size={22} strokeWidth={2.5} className="group-hover:-translate-x-1 transition-transform" />
             </button>

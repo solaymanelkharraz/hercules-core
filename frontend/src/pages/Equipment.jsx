@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { DataTable, Modal, Badge } from '../components/DataTable';
-import { Plus, Wrench } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { Plus, Wrench, CheckCircle, Search, Filter } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Equipment() {
   const [equipment, setEquipment] = useState([]);
@@ -88,6 +88,21 @@ export default function Equipment() {
     }
   };
 
+  const handleMarkInspected = async (item) => {
+    const loadId = toast.loading("Updating inspection date...");
+    try {
+      await api.put(`/equipment/${item.id}`, {
+        ...item,
+        last_inspection_date: new Date().toISOString().split('T')[0]
+      });
+      toast.success("Inspection logged successfully", { id: loadId });
+      fetchData();
+    } catch (err) {
+      console.error("Inspect Equipment Error:", err.response?.data || err);
+      toast.error("Failed to log inspection", { id: loadId });
+    }
+  };
+
   const columns = [
     { 
       key: 'sku_code', 
@@ -116,10 +131,46 @@ export default function Equipment() {
     },
   ];
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+
+  const filteredEquipment = equipment.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          item.sku_code.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = filterCategory === 'all' || item.category === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm gap-4">
-        <p className="text-slate-500 font-bold text-xs sm:text-sm tracking-tight leading-relaxed max-w-md">Full inventory control for all adventure park gear and assets.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative max-w-sm w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search gear..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-adventure/10 focus:border-adventure transition-all font-bold text-sm"
+            />
+          </div>
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="pl-10 pr-8 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-adventure/10 focus:border-adventure transition-all font-bold text-sm appearance-none cursor-pointer"
+            >
+              <option value="all">All Categories</option>
+              <option value="harness">Harness</option>
+              <option value="helmet">Helmet</option>
+              <option value="paintball_marker">Paintball Marker</option>
+              <option value="buggy">Buggy</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
         <button 
           onClick={() => {
             setSelectedItem(null);
@@ -135,8 +186,18 @@ export default function Equipment() {
 
       <DataTable 
         columns={columns} 
-        data={equipment} 
+        data={filteredEquipment} 
         isLoading={isLoading} 
+        rowClassName={(row) => row.needs_inspection ? 'bg-red-50 hover:bg-red-100 text-red-900' : ''}
+        actions={(row) => row.needs_inspection && (
+          <button 
+            onClick={() => handleMarkInspected(row)}
+            className="flex items-center gap-1 text-emerald-600 hover:text-emerald-800 font-black text-xs uppercase tracking-widest transition-colors mr-4"
+          >
+            <CheckCircle size={16} strokeWidth={3} />
+            Inspected
+          </button>
+        )}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />

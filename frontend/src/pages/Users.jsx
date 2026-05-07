@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { DataTable, Modal, Badge } from '../components/DataTable';
-import { Plus, Search } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { Plus, Search, Phone, Filter } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -17,6 +17,15 @@ export default function Users() {
     status: 'active'
   };
   const [formData, setFormData] = useState(INITIAL_STATE);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          user.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesRole = filterRole === 'all' || user.role === filterRole;
+    return matchesSearch && matchesRole;
+  });
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -93,6 +102,16 @@ export default function Users() {
     { key: 'name', label: 'Name' },
     { key: 'email', label: 'Email' },
     { 
+      key: 'phone', 
+      label: 'Phone',
+      render: (phone) => phone ? (
+        <a href={`tel:${phone}`} className="hover:text-orange-500 flex items-center gap-2 font-medium text-slate-600 transition-colors">
+          <Phone size={14} className="text-slate-400" />
+          {phone}
+        </a>
+      ) : <span className="text-slate-300 italic">Not provided</span>
+    },
+    { 
       key: 'role', 
       label: 'Role',
       render: (role) => (
@@ -115,13 +134,31 @@ export default function Users() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="relative max-w-sm w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search users..." 
-            className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-adventure/10 focus:border-adventure transition-all font-bold text-sm"
-          />
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative max-w-sm w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search users..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-adventure/10 focus:border-adventure transition-all font-bold text-sm"
+            />
+          </div>
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <select
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value)}
+              className="pl-10 pr-8 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-adventure/10 focus:border-adventure transition-all font-bold text-sm appearance-none cursor-pointer"
+            >
+              <option value="all">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="manager">Manager</option>
+              <option value="guide">Guide</option>
+              <option value="cashier">Cashier</option>
+            </select>
+          </div>
         </div>
         <button 
           onClick={() => {
@@ -138,7 +175,7 @@ export default function Users() {
 
       <DataTable 
         columns={columns} 
-        data={users} 
+        data={filteredUsers} 
         isLoading={isLoading} 
         onEdit={handleEdit}
         onDelete={handleDelete}

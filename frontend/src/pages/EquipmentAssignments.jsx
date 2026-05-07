@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { DataTable, Modal, Badge } from '../components/DataTable';
 import { Plus, CheckCircle } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 export default function EquipmentAssignments() {
   const [assignments, setAssignments] = useState([]);
@@ -13,7 +13,6 @@ export default function EquipmentAssignments() {
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const INITIAL_STATE = {
     equipment_id: '',
-    user_id: '',
     assigned_at: new Date().toISOString().slice(0, 16),
     returned_at: ''
   };
@@ -116,7 +115,7 @@ export default function EquipmentAssignments() {
         <button 
           onClick={() => {
             setSelectedAssignment(null);
-            setFormData({ equipment_id: '', user_id: '', assigned_at: new Date().toISOString().slice(0, 16), returned_at: '' });
+            setFormData({ equipment_id: '', assigned_at: new Date().toISOString().slice(0, 16), returned_at: '' });
             setIsModalOpen(true);
           }}
           className="flex items-center gap-2 px-8 py-3 bg-adventure text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-adventure-hover shadow-lg shadow-adventure/20 transition-all active:scale-95"
@@ -143,7 +142,6 @@ export default function EquipmentAssignments() {
           setSelectedAssignment(row);
           setFormData({
             equipment_id: row.equipment_id,
-            user_id: row.user_id,
             assigned_at: new Date(row.assigned_at).toISOString().slice(0, 16),
             returned_at: row.returned_at ? new Date(row.returned_at).toISOString().slice(0, 16) : ''
           });
@@ -177,18 +175,6 @@ export default function EquipmentAssignments() {
             >
               <option value="">-- Select Item --</option>
               {equipment.map(e => <option key={e.id} value={e.id}>{e.name} ({e.sku_code})</option>)}
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-black text-forest uppercase tracking-widest ml-1">Assign To Staff</label>
-            <select 
-              required
-              value={formData.user_id}
-              onChange={e => setFormData({...formData, user_id: e.target.value})}
-              className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-adventure/10 focus:border-adventure outline-none transition-all font-bold text-forest"
-            >
-              <option value="">-- Select Staff --</option>
-              {users.map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
             </select>
           </div>
           <div className="space-y-2">

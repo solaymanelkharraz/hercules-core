@@ -16,6 +16,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Admin Hercules',
             'email' => 'admin@hercules.ma',
+            'phone' => '+212600000001',
             'password' => Hash::make('password'),
             'role' => 'admin',
             'status' => 'active',
@@ -24,6 +25,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Manager Achakkar',
             'email' => 'manager@hercules.ma',
+            'phone' => '+212600000002',
             'password' => Hash::make('password'),
             'role' => 'manager',
             'status' => 'active',
@@ -32,6 +34,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Guide Tangier',
             'email' => 'guide@hercules.ma',
+            'phone' => '+212600000003',
             'password' => Hash::make('password'),
             'role' => 'guide',
             'status' => 'active',
@@ -40,6 +43,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Cashier Core',
             'email' => 'cashier@hercules.ma',
+            'phone' => '+212600000004',
             'password' => Hash::make('password'),
             'role' => 'cashier',
             'status' => 'active',

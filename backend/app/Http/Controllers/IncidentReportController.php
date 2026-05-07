@@ -24,7 +24,6 @@ class IncidentReportController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
             'zone_id' => 'required|exists:zones,id',
             'equipment_id' => 'nullable|exists:equipment,id',
             'severity_level' => ['required', Rule::in(['low', 'medium', 'high', 'critical'])],
@@ -32,7 +31,18 @@ class IncidentReportController extends Controller
             'status' => ['required', Rule::in(['reported', 'investigating', 'resolved'])],
         ]);
 
+        $validated['user_id'] = $request->user()->id;
+
         $report = IncidentReport::create($validated);
+
+        if ($report->severity_level === 'critical') {
+            \App\Models\Alert::create([
+                'message' => 'CRITICAL SOS: ' . $report->description,
+                'type' => 'danger',
+                'is_active' => true,
+                'incident_id' => $report->id
+            ]);
+        }
 
         return response()->json(['data' => $report], 201);
     }
@@ -52,7 +62,6 @@ class IncidentReportController extends Controller
     public function update(Request $request, IncidentReport $incidentReport): JsonResponse
     {
         $validated = $request->validate([
-            'user_id' => 'sometimes|required|exists:users,id',
             'zone_id' => 'sometimes|required|exists:zones,id',
             'equipment_id' => 'nullable|exists:equipment,id',
             'severity_level' => ['sometimes', 'required', Rule::in(['low', 'medium', 'high', 'critical'])],
@@ -60,7 +69,15 @@ class IncidentReportController extends Controller
             'status' => ['sometimes', 'required', Rule::in(['reported', 'investigating', 'resolved'])],
         ]);
 
+        if ($request->has('user_id') || true) {
+            $validated['user_id'] = $request->user()->id;
+        }
+
         $incidentReport->update($validated);
+
+        if ($incidentReport->status === 'resolved') {
+            \App\Models\Alert::where('incident_id', $incidentReport->id)->delete();
+        }
 
         return response()->json(['data' => $incidentReport], 200);
     }

@@ -41,6 +41,11 @@ class IncidentReport extends Model
         return $this->belongsTo(Zone::class);
     }
 
+    public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Message::class, 'incident_id');
+    }
+
     /**
      * Get the equipment involved in the incident, if any.
      */

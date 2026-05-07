@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { DataTable, Modal, Badge } from '../components/DataTable';
-import { Plus } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { Plus, Search } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Zones() {
   const [zones, setZones] = useState([]);
@@ -16,6 +16,11 @@ export default function Zones() {
     current_visitors: 0
   };
   const [formData, setFormData] = useState(INITIAL_STATE);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredZones = zones.filter(zone => 
+    zone.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const fetchZones = async () => {
     setIsLoading(true);
@@ -93,13 +98,32 @@ export default function Zones() {
     { 
       key: 'capacity', 
       label: 'Capacity',
-      render: (_, row) => (
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-800">{row.current_visitors}</span>
-          <span className="text-slate-400">/</span>
-          <span className="text-slate-500">{row.max_capacity}</span>
-        </div>
-      )
+      render: (_, row) => {
+        const percent = Math.min((row.current_visitors / row.max_capacity) * 100, 100) || 0;
+        let colorClass = 'bg-emerald-500';
+        if (percent > 70) colorClass = 'bg-yellow-500';
+        if (percent >= 90) colorClass = 'bg-red-500';
+
+        return (
+          <div className="w-full min-w-[150px]">
+            <div className="flex justify-between items-end mb-1">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-800">{row.current_visitors}</span>
+                <span className="text-xs text-slate-400">/ {row.max_capacity}</span>
+              </div>
+              {percent >= 90 && (
+                <span className="text-[10px] font-black text-red-600 bg-red-100 px-2 py-0.5 rounded-full uppercase tracking-widest">Zone Full</span>
+              )}
+            </div>
+            <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/50">
+              <div 
+                className={`${colorClass} h-full transition-all duration-1000 ease-out`} 
+                style={{ width: `${percent}%` }}
+              ></div>
+            </div>
+          </div>
+        );
+      }
     },
   ];
 
@@ -122,7 +146,7 @@ export default function Zones() {
 
       <DataTable 
         columns={columns} 
-        data={zones} 
+        data={filteredZones} 
         isLoading={isLoading} 
         onEdit={handleEdit}
         onDelete={handleDelete}

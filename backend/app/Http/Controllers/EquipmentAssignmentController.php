@@ -24,10 +24,11 @@ class EquipmentAssignmentController extends Controller
     {
         $validated = $request->validate([
             'equipment_id' => 'required|exists:equipment,id',
-            'user_id' => 'required|exists:users,id',
             'assigned_at' => 'sometimes|required|date',
             'returned_at' => 'nullable|date',
         ]);
+
+        $validated['user_id'] = $request->user()->id;
 
         $assignment = EquipmentAssignment::create($validated);
 
@@ -50,10 +51,13 @@ class EquipmentAssignmentController extends Controller
     {
         $validated = $request->validate([
             'equipment_id' => 'sometimes|required|exists:equipment,id',
-            'user_id' => 'sometimes|required|exists:users,id',
             'assigned_at' => 'sometimes|required|date',
             'returned_at' => 'nullable|date',
         ]);
+
+        if ($request->has('user_id') || true) {
+            $validated['user_id'] = $request->user()->id;
+        }
 
         $equipmentAssignment->update($validated);
 

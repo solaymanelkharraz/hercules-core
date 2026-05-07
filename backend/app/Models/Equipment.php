@@ -12,6 +12,16 @@ class Equipment extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $appends = ['needs_inspection'];
+
+    public function getNeedsInspectionAttribute()
+    {
+        if (!$this->last_inspection_date) {
+            return true;
+        }
+        return \Carbon\Carbon::parse($this->last_inspection_date)->diffInDays(now()) > 30;
+    }
+
     /**
      * The attributes that are mass assignable.
      *

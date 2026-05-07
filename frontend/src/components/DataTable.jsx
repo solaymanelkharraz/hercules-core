@@ -42,7 +42,7 @@ export function DataTable({ columns, data, isLoading, onEdit, onDelete, actions 
               {data.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length + 1} className="px-8 py-20 text-center text-slate-300 font-black uppercase tracking-widest text-xs">
-                    No active records in the forest
+                    No matching records found
                   </td>
                 </tr>
               ) : (
@@ -88,7 +88,7 @@ export function DataTable({ columns, data, isLoading, onEdit, onDelete, actions 
       <div className="md:hidden space-y-4">
         {data.length === 0 ? (
           <div className="bg-white p-12 rounded-[2rem] border border-slate-100 text-center text-slate-300 font-black uppercase tracking-widest text-[10px]">
-            No records found
+            No matching records found
           </div>
         ) : (
           data.map((row, i) => (
